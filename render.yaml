@@ -1,0 +1,63 @@
+# ==============================================================================
+# OpenWA - Render Blueprint Specification
+# Docs: https://render.com/docs/blueprint-spec
+# ==============================================================================
+# Deploy OpenWA to Render as a Docker Web Service.
+#
+# IMPORTANT PLAN & STORAGE NOTES:
+# 1. Plan & Persistent Storage:
+#    - 'starter' plan ($7/mo) is recommended because it supports Persistent Disks.
+#      A persistent disk mounted at /app/data ensures your WhatsApp session logins
+#      and SQLite databases survive restarts and redeployments.
+#    - If using Render's 'free' plan:
+#        * Change `plan: starter` to `plan: free`
+#        * REMOVE or comment out the `disk:` section entirely (free plan does not support disks).
+#        * Keep `ENGINE_TYPE: baileys` (512MB RAM cannot run Chromium/whatsapp-web.js).
+#        * Note: on free tier, sessions and data will reset whenever the instance sleeps or redeploys.
+#
+# 2. Engine Recommendation:
+#    - 'baileys' (Default below): Lightweight (~30-80 MB RAM), connects via pure WebSocket.
+#    - 'whatsapp-web.js': Full headless Chromium (~300-600 MB RAM). Requires paid plan (Starter/Standard).
+# ==============================================================================
+
+services:
+  - type: web
+    name: openwa
+    runtime: docker
+    plan: starter
+    region: oregon # Available regions: oregon, frankfurt, ohio, singapore, virginia
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health/ready
+    disk:
+      name: openwa-data
+      mountPath: /app/data
+      sizeGB: 5
+    envVars:
+      - key: PORT
+        value: 2785
+      - key: NODE_ENV
+        value: production
+      - key: ENGINE_TYPE
+        value: baileys
+      - key: AUTO_START_SESSIONS
+        value: "true"
+      - key: DATABASE_TYPE
+        value: sqlite
+      - key: DATABASE_NAME
+        value: ./data/openwa.sqlite
+      - key: MAIN_DATABASE_NAME
+        value: ./data/main.sqlite
+      - key: SESSION_DATA_PATH
+        value: ./data/sessions
+      - key: BAILEYS_AUTH_DIR
+        value: ./data/baileys
+      - key: STORAGE_TYPE
+        value: local
+      - key: STORAGE_LOCAL_PATH
+        value: ./data/media
+      - key: SERVE_DASHBOARD
+        value: "true"
+      - key: ENABLE_SWAGGER
+        value: "true"
+      - key: API_MASTER_KEY
+        generateValue: true
