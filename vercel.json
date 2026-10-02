@@ -3,13 +3,11 @@
   "services": {
     "api": {
       "root": ".",
-      "framework": "nestjs",
-      "buildCommand": "npm run build"
+      "framework": "nestjs"
     },
     "dashboard": {
       "root": "dashboard",
-      "framework": "vite",
-      "buildCommand": "npm run build"
+      "framework": "vite"
     }
   },
   "rewrites": [
