@@ -1,0 +1,33 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "services": {
+    "api": {
+      "root": ".",
+      "framework": "nestjs",
+      "buildCommand": "npm run build"
+    },
+    "dashboard": {
+      "root": "dashboard",
+      "framework": "vite",
+      "buildCommand": "npm run build"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/socket.io/(.*)",
+      "destination": { "service": "api" }
+    },
+    {
+      "source": "/mcp(.*)",
+      "destination": { "service": "api" }
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": { "service": "api" }
+    },
+    {
+      "source": "/(.*)",
+      "destination": { "service": "dashboard" }
+    }
+  ]
+}
